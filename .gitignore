@@ -1,0 +1,6 @@
+*.vcd
+*.out
+*.vvp
+*.log
+__pycache__/
+*.pyc
