@@ -1,10 +1,10 @@
 `include "alu_defs.vh"
 
 module alu (
-    input      [7:0] a,           // rs operand
-    input      [7:0] b,           // rt operand OR 8-bit immediate (instr[7:0])
-    input      [4:0] shamt,       // shift/rotate amount, instr[10:6]
-    input      [4:0] alu_control, // operation select from alu_control
+    input      [7:0] a,         
+    input      [7:0] b,       
+    input      [4:0] shamt,      
+    input      [4:0] alu_control, 
     output reg [7:0] result,
     output           less_than,
     output           carry,
@@ -22,8 +22,6 @@ module alu (
     wire [7:0] sum    = sum9[7:0];
 
     // SLT---------------------------------------------------------
-    // diff = a - b, taken from the shared adder above (valid because do_sub is
-    // asserted for SLT as well as SUB).
     wire [7:0] diff = sum;
     wire       lt   = (a[7] ^ b[7]) ? a[7] : diff[7];
     assign     less_than = lt;
