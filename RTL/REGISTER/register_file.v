@@ -4,12 +4,12 @@ module register_file #(
     )
     (
     input              clk,
-    input              reset,        // synchronous, active-high
-    input              reg_write,    // write enable (RegWrite from control unit)
+    input              reset,        
+    input              reg_write,   
     input      [4:0]   read_reg_1,   // rs field, instr[25:21]
     input      [4:0]   read_reg_2,   // rt field, instr[20:16]
     input      [4:0]   write_reg,    // destination addr (rd or rt, after RegDst mux)
-    input      [data_width - 1:0]   write_data,   // value written back in WB
+    input      [data_width - 1:0]   write_data,  
     output     [data_width - 1:0]   read_data_1,  // port A operand
     output     [data_width - 1:0]   read_data_2   // port B operand
 );
