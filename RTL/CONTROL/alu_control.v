@@ -1,9 +1,9 @@
 `include "alu_defs.vh"
 
 module alu_control (
-    input      [2:0] alu_op,     // class from control unit
-    input      [5:0] funct,      // instr[5:0], meaningful only for R-type
-    output reg [4:0] alu_control    // -> alu.v
+    input      [2:0] alu_op,   
+    input      [5:0] funct,     
+    output reg [4:0] alu_control  
 );
 
     // alu_op classes (must match control_unit.v)
