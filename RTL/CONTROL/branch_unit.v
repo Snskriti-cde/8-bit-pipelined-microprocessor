@@ -1,13 +1,13 @@
 
 module branch_unit (
-    input            branch,        // 1 = BEQ/BNE
+    input            branch,        // 1 = BEQ, 0 = BNE
     input            bne,           // 1 = BNE, 0 = BEQ
-    input            jump,          // 1 = J/JAL
-    input            jump_reg,      // 1 = JR
-    input            flag_z,        // ALU zero flag (a==b after SUB)
-    input      [7:0] pc_plus1,      // PC+1 (branch base)
-    input      [7:0] imm8,          // signed branch offset / jump target
-    input      [7:0] rs_val,        // rs register value (JR target)
+    input            jump,          
+    input            jump_reg,     
+    input            flag_z,      
+    input      [7:0] pc_plus1,      
+    input      [7:0] imm8,        
+    input      [7:0] rs_val,      
     output     [7:0] branch_target,
     output     [7:0] jump_target,
     output     [7:0] jr_target,
