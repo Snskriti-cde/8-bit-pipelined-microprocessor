@@ -1,25 +1,25 @@
 
 module control_unit (
-    input      [5:0] opcode,      // instr[31:26]
-    input      [5:0] funct,       // instr[5:0] (only used to detect JR)
+    input      [5:0] opcode,    
+    input      [5:0] funct,     
 
     // ---- MUX #1 : Write-register address selector -----------------------------------
     output reg [1:0] reg_dst,      // REGDST_RT=00 | REGDST_RD=01 | REGDST_RA=10
 
     //----- MUX #2 : ALU B-port selector ------------------------------------------------
-    output reg       alu_src,      // ALUSRC_REG=0 | ALUSRC_IMM=1
+    output reg       alu_src,
 
     //----- MUX #3 : Write-back data selector-------------------------------------------
     output reg [1:0] mem_to_reg,   // WB_ALU=00 | WB_MEM=01 | WB_PC1=10
 
     //----- MUX #4 : Next-PC control signals (decoded in top-level) ---------------------
-    output reg       branch,       // 1 = conditional branch; AND with alu_zero
-    output reg       jump,         // 1 = unconditional absolute jump
-    output reg       jal,          // 1 = JAL variant: also write PC+1
-    output reg       jump_reg,     // 1 = jump to rs register value 
+    output reg       branch,      
+    output reg       jump,         
+    output reg       jal,     
+    output reg       jump_reg,   
 
     //  Register-file write enable ---------------------------------------------------- 
-    output reg       reg_write,    // 1 = write result back to register file
+    output reg       reg_write,    
 
     // Data-memory port enables --------------------------------------------------- 
     output reg       mem_read,     // 1 = perform a data-memory READ  (LW only)
@@ -58,19 +58,19 @@ module control_unit (
     // MUX select constants 
     // ==============================================================================
 
-    // ── MUX #1  reg_dst 
+    //  MUX #1  reg_dst 
     localparam REGDST_RT = 2'b00,  // destination = rt = instr[20:16]  (I-type)
            REGDST_RD = 2'b01,      // destination = rd = instr[15:11]  (R-type)
            REGDST_RA = 2'b10;      // destination = ra = reg 31       (JAL link)
 
     //  MUX #2  alu_src 
-    localparam ALUSRC_REG = 1'b0,      // ALU B ← rt register value
-           ALUSRC_IMM = 1'b1;      // ALU B ← imm8 = instr[7:0]
+    localparam ALUSRC_REG = 1'b0,    
+    ALUSRC_IMM = 1'b1;     //imm [7:0] only
 
     //  MUX #3  mem_to_reg 
-    localparam WB_ALU  = 2'b00,        // write-back ← ALU result
-           WB_MEM  = 2'b01,        // write-back ← data memory read data   (LW)
-           WB_PC1  = 2'b10;        // write-back ← PC+1 (return address)   (JAL)
+    localparam WB_ALU  = 2'b00,   
+           WB_MEM  = 2'b01,       
+           WB_PC1  = 2'b10;     
 
 
     // =================================================================================
