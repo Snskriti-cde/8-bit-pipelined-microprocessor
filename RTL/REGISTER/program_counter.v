@@ -2,9 +2,9 @@
 module Program_Counter(
     input Clock,Reset,
     input[1:0] Pc_Sel,
-    input[7:0] Jr_Target,Jump_Target,Branch_Target, //jump for j/jal ,jr for jr
+    input[7:0] Jr_Target,Jump_Target,Branch_Target,
     output reg[7:0] Pc,
-    output[7:0] Pc_Next  //other units need it JAL,branch unit
+    output[7:0] Pc_Next 
     );
     
   assign Pc_Next = Pc + 1; 
