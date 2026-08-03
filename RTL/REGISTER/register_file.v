@@ -1,38 +1,42 @@
 module register_file #(
-    parameter data_width = 8,
-    parameter num_regs   = 32
-    )
-    (
-    input              clk,
-    input              reset,        
-    input              reg_write,   
-    input      [4:0]   read_reg_1,   // rs field, instr[25:21]
-    input      [4:0]   read_reg_2,   // rt field, instr[20:16]
-    input      [4:0]   write_reg,    // destination addr (rd or rt, after RegDst mux)
-    input      [data_width - 1:0]   write_data,  
-    output     [data_width - 1:0]   read_data_1,  // port A operand
-    output     [data_width - 1:0]   read_data_2   // port B operand
+    parameter DATA_WIDTH = 8,
+    parameter NUM_REGS   = 32
+)(
+    input                         clk,
+    input                         reset,        
+    input                         reg_write,  
+    input      [4:0]              read_reg_1,   // rs field
+    input      [4:0]              read_reg_2,   // rt field
+    input      [4:0]              write_reg,   
+    input      [DATA_WIDTH-1:0]   write_data,   
+    output     [DATA_WIDTH-1:0]   read_data_1,  // port A operand
+    output     [DATA_WIDTH-1:0]   read_data_2   // port B operand
 );
+//-------------------------------------------------------------------------------------------------
+    reg [DATA_WIDTH-1:0] regs [0:NUM_REGS-1];
+    integer i;
 
-      // -------------------------------------------------------------------------
-    reg [data_width - 1:0] regs [0:num_regs - 1];
-    integer   i;
+    
+    wire wr_active = reg_write && (write_reg != 5'd0);
 
-    // Asynchronous read
-    assign read_data_1 = (read_reg_1 == 5'd0) ? {data_width{1'b0}} : regs[read_reg_1];
-    assign read_data_2 = (read_reg_2 == 5'd0) ? {data_width{1'b0}} : regs[read_reg_2];
+    assign read_data_1 = (read_reg_1 == 5'd0)                      ? {DATA_WIDTH{1'b0}} :
+                         (wr_active && (write_reg == read_reg_1))  ? write_data          :
+                                                                     regs[read_reg_1];
 
-    // Synchronous write
+    assign read_data_2 = (read_reg_2 == 5'd0)                      ? {DATA_WIDTH{1'b0}} :
+                         (wr_active && (write_reg == read_reg_2))  ? write_data          :
+                                                                     regs[read_reg_2];
+
+    // Synchronous write ========================================================
     always @(posedge clk) begin
         if (reset) begin
-            for (i = 0; i < num_regs; i = i + 1)
-                regs[i] <= {data_width{1'b0}};
-	    regs[29] <= 8'hFF; // sp, 255 (stack will grow downwards)
+            for (i = 0; i < NUM_REGS; i = i + 1)
+                regs[i] <= {DATA_WIDTH{1'b0}};
         end
-        else if (reg_write && (write_reg != 5'd0)) begin
+        else if (wr_active) begin
             regs[write_reg] <= write_data;
         end
-	// reset block
+		// reset block
     end
 
 endmodule
