@@ -1,10 +1,10 @@
 `include "alu_defs.vh"
 
 module alu (
-    input      [7:0] a,         
-    input      [7:0] b,       
+	input      [7:0] a,           //rs
+    input      [7:0] b,           // rt operand OR immediate (instr[7:0])
     input      [4:0] shamt,      
-    input      [4:0] alu_control, 
+    input      [4:0] alu_control,
     output reg [7:0] result,
     output           less_than,
     output           carry,
@@ -87,13 +87,17 @@ module alu (
                 flag_c = inc_dec9[8];
                 flag_v = (a == 8'h80);
             end
-	   `ALU_MUL: begin
-		result = a*b;
+            // multiply: low 8 bits of the 16-bit product (matches 8-bit datapath)
+            `ALU_MUL: begin
+                result = a * b;
+                flag_c = ((a * b) > 16'd255);   // 1 = product overflowed 8 bits
             end
-	   `ALU_DIV: begin
-		result = a / b;
-	    end
-            default: result = 8'b0;                        // safe default -> no latch
+            // divide: guarded so /0 does not produce X in simulation
+            `ALU_DIV: begin
+                result = (b == 8'd0) ? 8'hFF : (a / b);
+                flag_v = (b == 8'd0);           // 1 = divide-by-zero
+            end
+            default: result = 8'b0;             // safe default -> no latch
         endcase
 
         flag_n = result[7];
