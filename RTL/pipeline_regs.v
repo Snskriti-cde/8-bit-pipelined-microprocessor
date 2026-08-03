@@ -5,8 +5,8 @@
 module if_id_reg(
     input             clk,
     input             reset,
-    input             stall,          // hold current contents (load-use)
-    input             flush,          // inject NOP (taken control transfer)
+    input             stall,          
+    input             flush,          // inject NOP
     input      [7:0]  pc_in,
     input      [7:0]  pc_plus1_in,
     input      [31:0] instruction_in,
@@ -18,7 +18,7 @@ always @(posedge clk) begin
     if (reset || flush) begin
         pc_out          <= 8'd0;
         pc_plus1_out    <= 8'd0;
-        instruction_out <= 32'd0;      // opcode 0 / funct 0 = SLL $0,$0,0 = NOP
+        instruction_out <= 32'd0;    
     end
     else if (!stall) begin
         pc_out          <= pc_in;
@@ -36,9 +36,9 @@ module id_ex_reg(
     input             clk,
     input             reset,
     input             stall,
-    input             flush,          // load-use bubble OR branch squash
+    input             flush,          
     // datapath
-    input      [7:0]  pc_in,             // (T2) own PC -> becomes EPC on a fault
+    input      [7:0]  pc_in,             
     input      [7:0]  pc_plus1_in,
     input      [7:0]  read_data1_in,
     input      [7:0]  read_data2_in,
@@ -174,18 +174,18 @@ module ex_mem_reg(
     input             flush,
     // data
     input      [7:0]  alu_result_in,
-    input      [7:0]  write_data_in,     // forwarded rt value (store data)
-    input      [7:0]  pc_plus1_in,       // (2) JAL link value
-    input      [7:0]  pc_in,             // (T2) own PC -> EPC
+    input      [7:0]  write_data_in,   
+    input      [7:0]  pc_plus1_in,      
+    input      [7:0]  pc_in,            
     input      [4:0]  dest_reg_in,
     // control
     input             reg_write_in,
     input             mem_read_in,
     input             mem_write_in,
-    input      [1:0]  mem_to_reg_in,     // (1) 2 bits
-    input             halt_in,           // (3)
-    input             exc_in,            // (T2) this instruction faulted
-    input      [7:0]  cause_in,          // (T2) its cause code
+    input      [1:0]  mem_to_reg_in,    
+    input             halt_in,          
+    input             exc_in,           
+    input      [7:0]  cause_in,         
     // outputs
     output reg [7:0]  alu_result_out,
     output reg [7:0]  write_data_out,
@@ -244,12 +244,12 @@ module mem_wb_reg(
     // data
     input      [7:0]  mem_data_in,
     input      [7:0]  alu_result_in,
-    input      [7:0]  pc_plus1_in,       // (2)
+    input      [7:0]  pc_plus1_in,      
     input      [4:0]  dest_reg_in,
     // control
     input             reg_write_in,
-    input      [1:0]  mem_to_reg_in,     // (1) 2 bits
-    input             halt_in,           // (3)
+    input      [1:0]  mem_to_reg_in,   
+    input             halt_in,       
     // outputs
     output reg [7:0]  mem_data_out,
     output reg [7:0]  alu_result_out,
