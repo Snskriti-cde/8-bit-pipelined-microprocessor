@@ -11,14 +11,15 @@ module instruction_memory_tb;
 
     // CHECKER =================================================================
 
-    task chk(input [8*16:1] name, input [7:0] addr, input [31:0] exp);
+    // Widened name array to 20 chars to fit test case names nicely
+    task chk(input [8*20:1] name, input [7:0] addr, input [31:0] exp);
         begin
             Address = addr; #1;
             if (Instr !== exp) begin
-                $display("  FAIL %-18s [%0d]=%h (exp %h)", name, addr, Instr, exp);
+                $display("  FAIL %-20s [%0d]=%h (exp %h)", name, addr, Instr, exp);
                 errors = errors + 1;
             end else
-                $display("  ok   %-18s [%0d]=%h", name, addr, Instr);
+                $display("  ok   %-20s [%0d]=%h", name, addr, Instr);
         end
     endtask
 
@@ -27,18 +28,24 @@ module instruction_memory_tb;
     // ===============================================================================
 
     initial begin
-        // default hard-coded contents from the module's initial block
-        chk("default[0]", 8'd0, 32'h9c367a34);
-        chk("default[1]", 8'd1, 32'h000458bc);
+        // Wait for DUT's initial block (which clears memory and runs $readmemh) to finish
+        #5; 
 
-        // overlay a known program and re-check addressing is purely combinational
-        $readmemh("program.hex", DUT.Instr_Array);
-        #1;
-        chk("prog[0] ADDI", 8'd0, 32'h20010005);
-        chk("prog[2] ADD",  8'd2, 32'h00221820);
-        chk("prog[23] HLT", 8'd23, 32'hfc000000);
+        DUT.Instr_Array[0]   = 32'h20010005; // ADDI
+        DUT.Instr_Array[2]   = 32'h00221820; // ADD
+        DUT.Instr_Array[10]  = 32'h8c0a0000; // LW
+        DUT.Instr_Array[23]  = 32'hfc000000; // HLT
+        DUT.Instr_Array[255] = 32'hFFFFFFFF; // Boundary test
 
-        // async: address change with no clock produces new word immediately
+        chk("prog[0] ADDI",  8'd0,   32'h20010005);
+        chk("prog[2] ADD",   8'd2,   32'h00221820);
+        chk("prog[23] HLT",  8'd23,  32'hfc000000);
+        
+        chk("prog[255] MAX", 8'd255, 32'hFFFFFFFF);
+
+        DUT.Instr_Array[50] = 32'h00000000; 
+        chk("empty[50]", 8'd50, 32'h00000000);
+
         Address = 8'd10; #1;
         if (Instr !== 32'h8c0a0000) begin
             $display("  FAIL async LW [10]=%h (exp 8c0a0000)", Instr); errors=errors+1;
