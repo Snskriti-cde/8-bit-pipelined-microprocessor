@@ -25,13 +25,14 @@ module register_file_tb;
 
     // CHECKER =================================================================
 
-    task chk1(input [8*16:1] name, input [7:0] got, input [7:0] exp);
+    // Widened name string to 22 characters to fit new test cases
+    task chk1(input [8*22:1] name, input [7:0] got, input [7:0] exp);
         begin
             if (got!==exp) begin
-                $display("  FAIL %-18s = %h (exp %h)", name, got, exp);
+                $display("  FAIL %-22s = %h (exp %h)", name, got, exp);
                 errors = errors + 1;
             end else
-                $display("  ok   %-18s = %h", name, got);
+                $display("  ok   %-22s = %h", name, got);
         end
     endtask
 
@@ -63,12 +64,32 @@ module register_file_tb;
         @(negedge clk); reg_write=0; write_reg=5'd3; write_data=8'h00;
         @(negedge clk); read_reg_1=5'd3; #1; chk1("WE=0 no write", read_data_1, 8'hAB);
 
+        // -------------------------------------------------------------------
+        // NEW FEATURE TESTS: Internal Forwarding (Write-Through Bypass)
+        // -------------------------------------------------------------------
+        @(negedge clk); 
+        reg_write = 1; write_reg = 5'd7; write_data = 8'h99;
+        read_reg_1 = 5'd7; read_reg_2 = 5'd7; 
+        #1; // Combinational delay, NO clock edge yet!
+        
+        // Even without a clock edge, the read ports should immediately show 8'h99
+        chk1("internal fwd R7 (P1)", read_data_1, 8'h99);
+        chk1("internal fwd R7 (P2)", read_data_2, 8'h99);
+        
+        // Wait for clock edge to actually commit the write, then turn off WE
+        @(negedge clk); reg_write = 0; 
+        read_reg_1 = 5'd7; #1; chk1("R7 committed", read_data_1, 8'h99);
+        // -------------------------------------------------------------------
+
         // synchronous reset clears everything
         @(negedge clk); reset=1;
         @(negedge clk); reset=0;
         read_reg_1=5'd3; read_reg_2=5'd10; #1;
         chk1("reset clears R3", read_data_1, 8'h00);
         chk1("reset clears R10", read_data_2, 8'h00);
+        
+        // Check R7 from the forwarding test was also cleared
+        read_reg_1=5'd7; #1; chk1("reset clears R7", read_data_1, 8'h00);
 
         $display("\n[register_file_tb] %s (%0d error%s)\n",
                  (errors==0)?"PASS":"FAIL", errors, (errors==1)?"":"s");
