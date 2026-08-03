@@ -79,13 +79,13 @@ J: [31:26] opcode       | [25:8]  0                            | [7:0]  address
 | Module | File | Function |
 |---|---|---|
 | ALU | `ALU/alu.v` | 18 ops (arith/logic/shift/rotate/mul/div), Z/N/C/V flags |
-| ALU Control | `CONTROL/alu_control.v` | `alu_op`+`funct` → 5-bit ALU code |
-| Control Unit | `CONTROL/control_unit.v` | `{opcode,funct}` → all datapath control signals |
-| Register File | `REGISTER/register_file.v` | 32×8-bit, 2R/1W, `$zero` hardwired |
-| Program Counter | `REGISTER/program_counter.v` | 8-bit, 4-way next-PC mux |
-| Instruction Memory | `MEMORY/instruction_memory.v` | 256×32-bit ROM |
-| Data Memory | `MEMORY/data_memory.v` | 256×8-bit RAM, sync write / async read |
-| Branch Unit | `CONTROL/branch_unit.v` | BEQ/BNE decision + branch/jump/JR targets |
+| ALU Control | alu_control.v` | `alu_op`+`funct` → 5-bit ALU code |
+| Control Unit | control_unit.v` | `{opcode,funct}` → all datapath control signals |
+| Register File | register_file.v` | 32×8-bit, 2R/1W, `$zero` hardwired |
+| Program Counter | program_counter.v` | 8-bit, 4-way next-PC mux |
+| Instruction Memory | instruction_memory.v` | 256×32-bit ROM |
+| Data Memory | data_memory.v` | 256×8-bit RAM, sync write / async read |
+| Branch Unit | branch_unit.v` | BEQ/BNE decision + branch/jump/JR targets |
 
 **ALU** (`alu.v`, `alu_defs.vh`)
 - Inputs: `a[7:0]`, `b[7:0]`, `shamt[4:0]`, `alu_control[4:0]`
@@ -256,20 +256,7 @@ cd RTL/ASM && iverilog -o /tmp/sim ../MEMORY/instruction_memory.v ../TEST_BENCH/
 
 ---
 
-## 12. Known Issues
 
-Verified by compiling every file with Icarus Verilog 12.0. `alu_tb`, `control_unit_tb`, `branch_unit_tb`, `pc_tb`, `data_memory_tb`, `forwarding_unit_tb`, `instruction_memory_tb` all pass with 0 errors. Open items before `cpu_tb.v` links and runs:
-
-| # | Issue | File |
-|---|---|---|
-| 1 | Typo `6'h13m` → should be `6'h13,` (blocks compilation) | `CONTROL/alu_control.v:17` |
-| 2 | `cpu.v` instantiates `if_id_reg`/`id_ex_reg`/`ex_mem_reg`/`mem_wb_reg` — not present in repo | `CPU/cpu.v` |
-| 3 | `cpu.v` uses module/port names (`pc`, `reg_file`, `data_mem`, `hazard_unit`, `pc_next`, `imm`, `ex_rs`...) that don't match the actual modules (`Program_Counter`, `register_file`, `data_memory`, `hazard_detection_unit`, `pc_plus1`, `imm8`, `id_ex_rs`...) | `CPU/cpu.v` |
-| 4 | Instruction memory hardcodes 2 debug words instead of loading `program.hex` by default | `MEMORY/instruction_memory.v` |
-| 5 | Testbench uses `.DATA_WIDTH`/`.NUM_REGS` (uppercase); module declares lowercase `data_width`/`num_regs` | `REGISTER/register_file_tb.v` |
-| 6 | `ex_alu_ctrl` wire is 4 bits, truncates the 5-bit code needed for MUL/DIV | `CPU/cpu.v` |
-
----
 
 ## License
 
