@@ -4,7 +4,7 @@
 module alu_control_tb;
     reg  [2:0] alu_op;
     reg  [5:0] funct;
-    wire [3:0] alu_control;
+    wire [4:0] alu_control;
     integer    errors = 0;
 
     alu_control DUT (.alu_op(alu_op), .funct(funct), .alu_control(alu_control));
@@ -14,7 +14,8 @@ module alu_control_tb;
 
     // CHECKER ================================================================
 
-    task chk(input [8*8:1] name, input [2:0] aop, input [5:0] f, input [3:0] exp);
+    // The 'exp' input is updated to 5 bits
+    task chk(input [8*8:1] name, input [2:0] aop, input [5:0] f, input [4:0] exp);
         begin
             alu_op = aop; funct = f; #1;
             if (alu_control !== exp) begin
@@ -37,6 +38,7 @@ module alu_control_tb;
         chk("OR",   AOP_OR,  6'h00, `ALU_OR);
         chk("XOR",  AOP_XOR, 6'h00, `ALU_XOR);
         chk("SLTi", AOP_SLT, 6'h00, `ALU_SLT);
+        
         // R-type funct decode
         chk("rADD",  AOP_RTYPE, 6'h20, `ALU_ADD);
         chk("rSUB",  AOP_RTYPE, 6'h22, `ALU_SUB);
@@ -54,6 +56,11 @@ module alu_control_tb;
         chk("rPASA", AOP_RTYPE, 6'h23, `ALU_PASA);
         chk("rINC",  AOP_RTYPE, 6'h12, `ALU_INC);
         chk("rDEC",  AOP_RTYPE, 6'h13, `ALU_DEC);
+        
+        // New R-type additions
+        chk("rMUL",  AOP_RTYPE, 6'h18, `ALU_MUL); 
+        chk("rDIV",  AOP_RTYPE, 6'h1A, `ALU_DIV); 
+        
         chk("rJR",   AOP_RTYPE, 6'h08, `ALU_ADD); // JR: ALU unused -> default ADD
 
         $display("\n[alu_control_tb] %s (%0d error%s)\n",
