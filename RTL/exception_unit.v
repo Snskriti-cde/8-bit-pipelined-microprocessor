@@ -20,9 +20,6 @@ module exception_unit #(
     output     [7:0]  exc_vector
 );
 
-    // The commit is combinational so that the flushes and the PC redirect all
-    // happen on the same clock edge that would otherwise have let the younger
-    // instructions advance.
     assign exc_taken  = mem_exc;
     assign exc_vector = VECTOR;
 
