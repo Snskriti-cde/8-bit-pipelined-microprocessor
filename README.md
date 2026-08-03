@@ -22,9 +22,20 @@ Custom 8-bit, MIPS-inspired processor in Verilog. Built in two stages: a single-
 
 ## 2. Registers
 
-| # | 0–7 | 8–15 | 16–23 | 24–31 |
-|---|---|---|---|---|
-| Names | zero,at,v0,v1,a0,a1,a2,a3 | t0–t7 | s0–s7 | t8,t9,k0,k1,gp,sp,fp,ra |
+| Number | Name | Usage |
+|---|---|---|
+| $0 | zero | Constant 0 |
+| $1 | at | Assembler temporary |
+| $2–$3 | v0–v1 | Function return values / expression evaluation |
+| $4–$7 | a0–a3 | Function arguments |
+| $8–$15 | t0–t7 | Temporaries |
+| $16–$23 | s0–s7 | Saved temporaries |
+| $24–$25 | t8–t9 | Temporaries |
+| $26–$27 | k0–k1 | Reserved (OS kernel) |
+| $28 | gp | Global pointer |
+| $29 | sp | Stack pointer |
+| $30 | fp | Frame pointer |
+| $31 | ra | Return address |
 
 - `$zero` (r0): reads always return 0; writes to it are dropped.
 - `$sp` (r29): initialized to `0xFF` on reset — stack starts at top of memory and grows down.
@@ -209,16 +220,23 @@ cd RTL/ASM && python3 assembler.py
 ## 10. Repository Structure
 
 ```
-RTL/
-├── ALU/                 alu.v, alu_defs.vh
-├── CONTROL/              control_unit.v, alu_control.v, branch_unit.v
-├── CPU/                  cpu.v (top-level pipeline)
-├── HAZARD/                forwarding_unit.v, hazard_detection_unit.v
-├── MEMORY/                instruction_memory.v, data_memory.v
-├── REGISTER/              register_file.v, program_counter.v
-├── BRANCH_PREDICTOR/      branch_predictor_2x2.v, branch_predictor_btb16.v
-├── ASM/                   assembler.py + programs
-└── TEST_BENCH/            one testbench per module
+.
+├── README.md
+├── LICENSE
+└── RTL/
+    ├── ALU/                alu.v, alu_defs.vh
+    ├── CONTROL/            control_unit.v, alu_control.v, branch_unit.v
+    ├── CPU/                cpu.v (top-level pipeline)
+    ├── HAZARD/             forwarding_unit.v, hazard_detection_unit.v
+    ├── MEMORY/             instruction_memory.v, data_memory.v
+    ├── REGISTER/           register_file.v, program_counter.v
+    ├── BRANCH_PREDICTOR/   branch_predictor_2x2.v, branch_predictor_btb16.v
+    ├── ASM/                assembler.py, factorial.asm, sort.asm,
+    │                       program.hex, instruction_memory.mem
+    └── TEST_BENCH/         alu_tb.v, control_unit_tb.v, branch_unit_tb.v,
+                            pc_tb.v, register_file_tb.v, data_memory_tb.v,
+                            forwarding_unit_tb.v, instruction_memory_tb.v,
+                            cpu_tb.v
 ```
 
 ---
@@ -256,4 +274,3 @@ Verified by compiling every file with Icarus Verilog 12.0. `alu_tb`, `control_un
 ## License
 
 MIT — see [LICENSE](LICENSE).
-
