@@ -79,13 +79,13 @@ J: [31:26] opcode       | [25:8]  0                            | [7:0]  address
 | Module | File | Function |
 |---|---|---|
 | ALU | `ALU/alu.v` | 18 ops (arith/logic/shift/rotate/mul/div), Z/N/C/V flags |
-| ALU Control | alu_control.v` | `alu_op`+`funct` → 5-bit ALU code |
-| Control Unit | control_unit.v` | `{opcode,funct}` → all datapath control signals |
-| Register File | register_file.v` | 32×8-bit, 2R/1W, `$zero` hardwired |
-| Program Counter | program_counter.v` | 8-bit, 4-way next-PC mux |
-| Instruction Memory | instruction_memory.v` | 256×32-bit ROM |
-| Data Memory | data_memory.v` | 256×8-bit RAM, sync write / async read |
-| Branch Unit | branch_unit.v` | BEQ/BNE decision + branch/jump/JR targets |
+| ALU Control | alu_control.v | `alu_op`+`funct` → 5-bit ALU code |
+| Control Unit | control_unit.v | `{opcode,funct}` → all datapath control signals |
+| Register File | register_file.v | 32×8-bit, 2R/1W, `$zero` hardwired |
+| Program Counter | program_counter.v | 8-bit, 4-way next-PC mux |
+| Instruction Memory | instruction_memory.v | 256×32-bit ROM |
+| Data Memory | data_memory.v | 256×8-bit RAM, sync write / async read |
+| Branch Unit | branch_unit.v | BEQ/BNE decision + branch/jump/JR targets |
 
 **ALU** (`alu.v`, `alu_defs.vh`)
 - Inputs: `a[7:0]`, `b[7:0]`, `shamt[4:0]`, `alu_control[4:0]`
