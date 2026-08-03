@@ -22,15 +22,16 @@ module branch_unit_tb;
     task clr; begin branch=0; bne=0; jump=0; jump_reg=0; flag_z=0;
                     pc_plus1=8'd10; imm8=8'd2; rs_val=8'd55; end endtask
 
-    task chk(input [8*14:1] name, input et, input [1:0] esel);
+    // Increased name string length slightly to accommodate new test case names
+    task chk(input [8*16:1] name, input et, input [1:0] esel);
         begin
             #1;
             if (branch_taken!==et || pc_sel!==esel) begin
-                $display("  FAIL %-12s taken=%b(exp %b) pc_sel=%b(exp %b)",
+                $display("  FAIL %-16s taken=%b(exp %b) pc_sel=%b(exp %b)",
                          name, branch_taken, et, pc_sel, esel);
                 errors = errors + 1;
             end else
-                $display("  ok   %-12s taken=%b pc_sel=%b", name, branch_taken, pc_sel);
+                $display("  ok   %-16s taken=%b pc_sel=%b", name, branch_taken, pc_sel);
         end
     endtask
 
@@ -39,16 +40,22 @@ module branch_unit_tb;
     // ===============================================================================
 
     initial begin
-        clr; branch=1; bne=0; flag_z=1; chk("BEQ_taken",     1, 2'b01);
-        clr; branch=1; bne=0; flag_z=0; chk("BEQ_not_taken", 0, 2'b00);
-        clr; branch=1; bne=1; flag_z=0; chk("BNE_taken",     1, 2'b01);
-        clr; branch=1; bne=1; flag_z=1; chk("BNE_not_taken", 0, 2'b00);
-        clr; jump=1;                    chk("JUMP",          0, 2'b10);
-        clr; jump_reg=1;                chk("JR",            0, 2'b11);
-        clr; jump=1; jump_reg=1;        chk("JR_over_JUMP",  0, 2'b11); // JR priority
+        // Control logic checks
+        clr;                                            chk("DEFAULT_PC_NEXT", 0, 2'b00); // All 0s
+        clr; branch=1; bne=0; flag_z=1;                 chk("BEQ_taken",       1, 2'b01);
+        clr; branch=1; bne=0; flag_z=0;                 chk("BEQ_not_taken",   0, 2'b00);
+        clr; branch=1; bne=1; flag_z=0;                 chk("BNE_taken",       1, 2'b01);
+        clr; branch=1; bne=1; flag_z=1;                 chk("BNE_not_taken",   0, 2'b00);
+        clr; jump=1;                                    chk("JUMP",            0, 2'b10);
+        clr; jump_reg=1;                                chk("JR",              0, 2'b11);
+        
+        // Priority checks (MUX verification)
+        clr; jump=1; jump_reg=1;                        chk("JR_over_JUMP",    0, 2'b11); // JR > JUMP
+        clr; branch=1; flag_z=1; jump=1; jump_reg=1;    chk("JR_over_ALL",     1, 2'b11); // JR > ALL
+        clr; branch=1; flag_z=1; jump=1;                chk("JUMP_over_BR",    1, 2'b10); // JUMP > BR
 
         // datapath value checks
-        #1;
+        $display("---------------------------------------------------------");
         clr; pc_plus1=8'd10; imm8=8'd2;  #1;
         if (branch_target!==8'd12) begin $display("  FAIL branch_target=%0d (exp 12)", branch_target); errors=errors+1; end
         else $display("  ok   branch_target=10+2=%0d", branch_target);
